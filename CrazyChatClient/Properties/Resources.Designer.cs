@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace CrazyChatClient.Properties
+namespace CrazyChatServer.Properties
 {
 
 
