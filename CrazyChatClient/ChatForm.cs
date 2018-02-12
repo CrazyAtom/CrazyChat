@@ -37,23 +37,7 @@ namespace CrazyChatClient
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void OnFormLoaded(object sender, EventArgs e) {
-            IPHostEntry he = Dns.GetHostEntry(Dns.GetHostName());
-
-            // 처음으로 발견되는 ipv4 주소를 사용
-            IPAddress defaultHostAddress = null;
-            foreach (IPAddress addr in he.AddressList) {
-                if (addr.AddressFamily == AddressFamily.InterNetwork) {
-                    defaultHostAddress = addr;
-                    break;
-                }
-            }
-
-            // 주소가 없다면
-            if (defaultHostAddress == null) {
-                // 로컬호스트 주소를 사용한다
-                defaultHostAddress = IPAddress.Loopback;
-            }
-
+            IPAddress defaultHostAddress = Utillity.GetIPAddress();
             txtAddress.Text = defaultHostAddress.ToString();
         }
 
@@ -166,7 +150,7 @@ namespace CrazyChatClient
                 return;
             }
 
-            // ip 주소
+            // 서버 ip 주소
             IPEndPoint ip = (IPEndPoint)mainSock.LocalEndPoint;
             string addr = ip.Address.ToString();
 

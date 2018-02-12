@@ -39,23 +39,8 @@ namespace CrazyChatServer
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void OFormLoaded(object sender, EventArgs e) {
-            IPHostEntry he = Dns.GetHostEntry(Dns.GetHostName());
-
-            // 처음으로 발견되는 ipv4 주소를 사용
-            foreach (IPAddress addr in he.AddressList) {
-                if (addr.AddressFamily == AddressFamily.InterNetwork) {
-                    thisAddress = addr;
-                    break;
-                }
-            }
-
-            // 주소가 없다면
-            if (thisAddress == null) {
-                // 로컬호스트 주소를 사용한다
-                thisAddress = IPAddress.Loopback;
-            }
-
-            txtAddress.Text = thisAddress.ToString();
+            this.thisAddress = Utillity.GetIPAddress();
+            txtAddress.Text = this.thisAddress.ToString();
         }
 
         /// <summary>
@@ -148,25 +133,11 @@ namespace CrazyChatServer
             string ip = tokens[0];
             string msg = tokens[1];
 
-            // 텍스트박스에 추가
-            // 비동기식으로 작업하기 때문에 폼의 UI 스레드에서 처리 해야 한다
-            // 대리자를 통해 처리
-            AppendText(txtHistory, string.Format("[받음]{0}: {1}", ip, msg));
+            // 연결된 모든 클라이언트에게 전송한다
+            SendAllClient(obj.Buffer, obj.WorkingSocket);
 
-            // 모든 클라이언트에게 데이터를 보낸다
-            for (int i = connectedClients.Count - 1; i >= 0; i--) {
-                Socket socket = connectedClients[i];
-                // 현재 작업 클라이언트는 제외
-                if (socket != obj.WorkingSocket) {
-                    try { socket.Send(obj.Buffer); }
-                    catch {
-                        // 오류 발생시 전송 취소 하고 리스트에서만 삭제
-                        try { socket.Dispose(); }
-                        catch { }
-                        connectedClients.RemoveAt(i);
-                    }
-                }
-            }
+            // 전송 완료 후 텍스트박스에 추가
+            AppendText(txtHistory, string.Format("[받음]{0}: {1}", ip, msg));
 
             // 데이터를 받은 후엔 다시 버퍼를 비워주고 같은 방법으로 수신을 대기한다
             obj.ClearBuffer();
@@ -195,24 +166,58 @@ namespace CrazyChatServer
                 return;
             }
 
-            // 문자열을 utf8 형식의 바이트로 변환한다.
+            // 문자열을 utf8 형식의 바이트로 변환한다
+            // '\x01'을 토큰으로 사용
             byte[] bDts = Encoding.UTF8.GetBytes(thisAddress.ToString() + '\x01' + tts);
 
             // 연결된 모든 클라이언트에게 전송한다
-            for (int i = connectedClients.Count - 1; i >= 0; i--) {
-                Socket socket = connectedClients[i];
-                try { socket.Send(bDts); }
-                catch {
-                    // 오류 발생하면 전송 취소하고 리스트에서 삭제
-                    try { socket.Dispose(); }
-                    catch { }
-                    connectedClients.RemoveAt(i);
-                }
-            }
+            SendAllClient(bDts);
 
             // 전송 완료 후 텍스트박스에 추가하고, 원래의 내용은 지운다
             AppendText(txtHistory, string.Format("[보냄]{0}: {1}", thisAddress.ToString(), tts));
             txtTTS.Clear();
+        }
+
+        /// <summary>
+        /// 접속된 모든 클라이언트에게 데이터 전송
+        /// </summary>
+        /// <param name="bDts">전송 데이터</param>
+        private void SendAllClient(byte[] bDts, Socket workingSocket=null) {
+            for (int i = connectedClients.Count - 1; i >= 0; i--) {
+                Socket socket = connectedClients[i];
+                // 현재 작업 클라이언트가 있다면 제외
+                if (workingSocket != null) {
+                    if (socket != workingSocket) {
+                        try { socket.Send(bDts); }
+                        catch {
+                            // 오류 발생시 전송 취소 하고 리스트에서만 삭제
+                            try { socket.Dispose(); }
+                            catch { }
+                            connectedClients.RemoveAt(i);
+                        }
+                    }
+                }
+                else {
+                    try { socket.Send(bDts); }
+                    catch {
+                        // 오류 발생시 전송 취소 하고 리스트에서만 삭제
+                        try { socket.Dispose(); }
+                        catch { }
+                        connectedClients.RemoveAt(i);
+                    }
+                }
+
+
+                if ((workingSocket != null) && (socket != workingSocket)) {
+                    try { socket.Send(bDts); }
+                    catch {
+                        // 오류 발생시 전송 취소 하고 리스트에서만 삭제
+                        try { socket.Dispose(); }
+                        catch { }
+                        connectedClients.RemoveAt(i);
+                    }
+                }
+            }
         }
     }
 }

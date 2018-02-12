@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-
-namespace CrazyChatShareLib
+﻿namespace CrazyChatShareLib
 {
     public class Utillity
     {
@@ -15,8 +8,29 @@ namespace CrazyChatShareLib
         /// </summary>
         /// <param name="sender">object</param>
         /// <param name="e">event</param>
-        static public void DigitFilter(object sender, KeyPressEventArgs e) {
+        static public void DigitFilter(object sender, System.Windows.Forms.KeyPressEventArgs e) {
             e.Handled = !(char.IsControl(e.KeyChar) || char.IsDigit(e.KeyChar));
+        }
+
+        /// <summary>
+        /// 처음으로 발견되는 ip 검색
+        /// 검색된 ip가 없다면 로컬 호스트를 주소로 사용
+        /// </summary>
+        /// <returns>ip address</returns>
+        static public System.Net.IPAddress GetIPAddress() {
+            System.Net.IPHostEntry he = System.Net.Dns.GetHostEntry(System.Net.Dns.GetHostName());
+
+            // 처음으로 발견되는 ipv4 주소를 사용
+            System.Net.IPAddress defaultHostAddress = null;
+            foreach (System.Net.IPAddress addr in he.AddressList) {
+                if (addr.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork) {
+                    defaultHostAddress = addr;
+                    break;
+                }
+            }
+
+            // 검색된 ip가 없다면 로컬호스트를 주소로 사용
+            return (defaultHostAddress == null) ? System.Net.IPAddress.Loopback : defaultHostAddress;
         }
     }
 }
