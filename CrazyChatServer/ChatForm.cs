@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CrazyChatShareLib;
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
@@ -22,6 +23,9 @@ namespace CrazyChatServer
         }
 
         void AppendText(Control ctrl, string s) {
+            if (_textAppender == null) { _textAppender = new AppendTextDelegate(AppendText); }
+
+            // 컨트롤이 생성된 UI thread가 아니면 대리자를 통해 UI thread에서 호출 
             if (ctrl.InvokeRequired) ctrl.Invoke(_textAppender, ctrl, s);
             else {
                 string source = ctrl.Text;
@@ -60,12 +64,12 @@ namespace CrazyChatServer
         /// </summary>
         /// <param name="sender">object</param>
         /// <param name="e">event</param>
-        private void DigitFilter(object sender, KeyPressEventArgs e)
-        {
-            e.Handled = !(char.IsControl(e.KeyChar) || char.IsDigit(e.KeyChar));
+        private void DigitFilter(object sender, KeyPressEventArgs e) {
+            Utillity.DigitFilter(sender, e);
         }
 
         /// <summary>
+        /// 시작 버튼 클릭 이벤트
         /// 소켓 서버를 시작 시킨다
         /// </summary>
         /// <param name="sender">object</param>
@@ -172,7 +176,7 @@ namespace CrazyChatServer
         }
 
         /// <summary>
-        /// 데이터 전송 버튼 이벤트 처리
+        /// 보내기 버튼 이벤트
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>

@@ -34,7 +34,7 @@
             this.lblTTS = new System.Windows.Forms.Label();
             this.lblAddress = new System.Windows.Forms.Label();
             this.txtAddress = new System.Windows.Forms.TextBox();
-            this.btnStart = new System.Windows.Forms.Button();
+            this.btnConnect = new System.Windows.Forms.Button();
             this.btnSend = new System.Windows.Forms.Button();
             this.lblPort = new System.Windows.Forms.Label();
             this.txtPort = new System.Windows.Forms.TextBox();
@@ -66,7 +66,7 @@
             this.tblMainLayout.Controls.Add(this.lblTTS, 0, 2);
             this.tblMainLayout.Controls.Add(this.lblAddress, 0, 0);
             this.tblMainLayout.Controls.Add(this.txtAddress, 1, 0);
-            this.tblMainLayout.Controls.Add(this.btnStart, 4, 0);
+            this.tblMainLayout.Controls.Add(this.btnConnect, 4, 0);
             this.tblMainLayout.Controls.Add(this.txtHistory, 0, 1);
             this.tblMainLayout.Controls.Add(this.btnSend, 4, 2);
             this.tblMainLayout.Controls.Add(this.lblPort, 2, 0);
@@ -129,16 +129,17 @@
             this.txtAddress.Size = new System.Drawing.Size(171, 21);
             this.txtAddress.TabIndex = 1;
             // 
-            // btnStart
+            // btnConnect
             // 
-            this.btnStart.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.btnStart.Location = new System.Drawing.Point(487, 9);
-            this.btnStart.Margin = new System.Windows.Forms.Padding(1);
-            this.btnStart.Name = "btnStart";
-            this.btnStart.Size = new System.Drawing.Size(98, 30);
-            this.btnStart.TabIndex = 4;
-            this.btnStart.Text = "시작";
-            this.btnStart.UseVisualStyleBackColor = true;
+            this.btnConnect.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.btnConnect.Location = new System.Drawing.Point(487, 9);
+            this.btnConnect.Margin = new System.Windows.Forms.Padding(1);
+            this.btnConnect.Name = "btnConnect";
+            this.btnConnect.Size = new System.Drawing.Size(98, 30);
+            this.btnConnect.TabIndex = 4;
+            this.btnConnect.Text = "연결";
+            this.btnConnect.UseVisualStyleBackColor = true;
+            this.btnConnect.Click += new System.EventHandler(this.OnConnectToServer);
             // 
             // btnSend
             // 
@@ -150,6 +151,7 @@
             this.btnSend.TabIndex = 8;
             this.btnSend.Text = "보내기";
             this.btnSend.UseVisualStyleBackColor = true;
+            this.btnSend.Click += new System.EventHandler(this.OnSendData);
             // 
             // lblPort
             // 
@@ -182,6 +184,7 @@
             this.Controls.Add(this.tblMainLayout);
             this.Name = "ChatForm";
             this.Text = "Chat Client";
+            this.Load += new System.EventHandler(this.OnFormLoaded);
             this.tblMainLayout.ResumeLayout(false);
             this.tblMainLayout.PerformLayout();
             this.ResumeLayout(false);
@@ -196,7 +199,7 @@
         private System.Windows.Forms.Label lblTTS;
         private System.Windows.Forms.Label lblAddress;
         private System.Windows.Forms.TextBox txtAddress;
-        private System.Windows.Forms.Button btnStart;
+        private System.Windows.Forms.Button btnConnect;
         private System.Windows.Forms.Button btnSend;
         private System.Windows.Forms.Label lblPort;
         private System.Windows.Forms.TextBox txtPort;
